@@ -1,0 +1,122 @@
+function 左回転 () {
+    pins.analogWritePin(AnalogPin.P12, 0)
+    pins.analogWritePin(AnalogPin.P13, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P15, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P16, 0)
+}
+input.onButtonPressed(Button.A, function () {
+    電源 += 1
+    if (電源 == 2) {
+        電源 = 0
+        停止()
+    }
+})
+function バック () {
+    pins.analogWritePin(AnalogPin.P12, 0)
+    pins.analogWritePin(AnalogPin.P13, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P15, 0)
+    pins.analogWritePin(AnalogPin.P16, スピード + バランス)
+}
+function 左の距離を測る () {
+    pins.servoWritePin(AnalogPin.P2, 135)
+    basic.pause(500)
+    左の距離 = 0
+    while (左の距離 == 0) {
+        左の距離 = sonar.ping(
+        DigitalPin.P0,
+        DigitalPin.P1,
+        PingUnit.Centimeters
+        )
+        basic.pause(200)
+    }
+    return 左の距離
+}
+function 右の距離を測る () {
+    pins.servoWritePin(AnalogPin.P2, 45)
+    basic.pause(500)
+    右の距離 = 0
+    while (右の距離 == 0) {
+        右の距離 = sonar.ping(
+        DigitalPin.P0,
+        DigitalPin.P1,
+        PingUnit.Centimeters
+        )
+        basic.pause(200)
+    }
+    return 右の距離
+}
+function 前進 () {
+    pins.analogWritePin(AnalogPin.P12, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P13, 0)
+    pins.analogWritePin(AnalogPin.P15, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P16, 0)
+}
+function 右回転 () {
+    pins.analogWritePin(AnalogPin.P12, スピード + バランス)
+    pins.analogWritePin(AnalogPin.P13, 0)
+    pins.analogWritePin(AnalogPin.P15, 0)
+    pins.analogWritePin(AnalogPin.P16, スピード + バランス)
+}
+function 停止 () {
+    pins.analogWritePin(AnalogPin.P12, 0)
+    pins.analogWritePin(AnalogPin.P13, 0)
+    pins.analogWritePin(AnalogPin.P15, 0)
+    pins.analogWritePin(AnalogPin.P16, 0)
+}
+function 前の距離を測る () {
+    前の距離 = 0
+    while (前の距離 == 0) {
+        前の距離 = sonar.ping(
+        DigitalPin.P0,
+        DigitalPin.P1,
+        PingUnit.Centimeters
+        )
+        basic.pause(200)
+    }
+    led.plotBarGraph(
+    前の距離,
+    300,
+    true
+    )
+    return 前の距離
+}
+let 前の距離 = 0
+let 右の距離 = 0
+let 左の距離 = 0
+let バランス = 0
+let スピード = 0
+let 電源 = 0
+電源 = 0
+スピード = 500
+バランス = 0
+停止()
+pins.servoWritePin(AnalogPin.P2, 0)
+basic.pause(1000)
+pins.servoWritePin(AnalogPin.P2, 180)
+basic.pause(1000)
+pins.servoWritePin(AnalogPin.P2, 90)
+basic.pause(1000)
+basic.forever(function () {
+    while (電源 == 1) {
+        前の距離を測る()
+        if (前の距離 < 25) {
+            停止()
+            右の距離を測る()
+            左の距離を測る()
+            pins.servoWritePin(AnalogPin.P2, 90)
+            basic.pause(500)
+            if (右の距離 < 左の距離 && 前の距離 < 左の距離) {
+                左回転()
+            } else if (右の距離 > 左の距離 && 前の距離 < 右の距離) {
+                右回転()
+            } else {
+                バック()
+            }
+            basic.pause(500)
+        } else {
+            前進()
+            basic.pause(500)
+        }
+    }
+    停止()
+})
