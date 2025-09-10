@@ -9,6 +9,7 @@ input.onButtonPressed(Button.A, function () {
     if (電源 == 2) {
         電源 = 0
         停止()
+        basic.clearScreen()
     }
 })
 function バック () {
@@ -119,4 +120,5 @@ basic.forever(function () {
         }
     }
     停止()
+    basic.clearScreen()
 })
